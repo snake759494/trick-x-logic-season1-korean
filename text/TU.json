@@ -1160,7 +1160,7 @@
    "category": "scenario",
    "speaker_hint": null,
    "ja": "　　　第二章",
-   "ko": "제2장입니다",
+   "ko": "　　　제2장",
    "chars": 6,
    "max_chars": 53,
    "group": {
@@ -1183,7 +1183,7 @@
    "category": "scenario",
    "speaker_hint": null,
    "ja": "　　　　　　二人の容疑者",
-   "ko": "두 명의 용의자 이야기",
+   "ko": "　　　　두 명의 용의자",
    "chars": 12,
    "max_chars": 53,
    "group": {

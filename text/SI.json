@@ -33,7 +33,7 @@
    "category": "scenario",
    "speaker_hint": null,
    "ja": "　　　　　頼りない探偵",
-   "ko": "　　　　　못 미더운",
+   "ko": "　　　못 미더운 탐정",
    "chars": 11,
    "max_chars": 170,
    "group": {
@@ -13741,7 +13741,7 @@
    "category": "scenario",
    "speaker_hint": null,
    "ja": "　　　　　一つの疑問",
-   "ko": "　　　　　한 가지",
+   "ko": "　　　한 가지 의문",
    "chars": 10,
    "max_chars": 170,
    "group": {
