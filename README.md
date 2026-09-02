@@ -17,7 +17,7 @@ PSP 추리 어드벤처 **트릭 × 로직 시즌 1**(UCJS-10097)의 한국어 �
 | | |
 |---|---|
 | 원본 ISO | `Trick x Logic Season 1.iso` — **718,307,328 바이트** |
-| 패치 파일 | `TrickxLogic_S1_Korean_v1.7.2.xdelta` ([Releases](../../releases/latest)) |
+| 패치 파일 | `TrickxLogic_S1_Korean_v1.7.3.xdelta` ([Releases](../../releases/latest)) |
 | 패치 도구 | xdelta3 — [공식 배포처](https://github.com/jmacd/xdelta-gpl/releases) |
 
 Windows에서는 GUI 도구인 **xdeltaUI**(`xdelta UI` / `Delta Patcher` 등 아무거나)를
@@ -54,7 +54,7 @@ ISO 를 다시 굽거나 재패킹한 것도 해시가 달라져 안 됩니다. 
 **명령줄 (Windows / macOS / Linux 공통)**
 
 ```bash
-xdelta3 -d -s "Trick x Logic Season 1.iso" "TrickxLogic_S1_Korean_v1.7.2.xdelta" "Trick x Logic Season 1 (KR).iso"
+xdelta3 -d -s "Trick x Logic Season 1.iso" "TrickxLogic_S1_Korean_v1.7.3.xdelta" "Trick x Logic Season 1 (KR).iso"
 ```
 
 - `-d` 디코드(적용) · `-s` 원본 파일 · 마지막이 만들어질 한글판입니다.
@@ -74,9 +74,9 @@ xdelta3 -d -s "Trick x Logic Season 1.iso" "TrickxLogic_S1_Korean_v1.7.2.xdelta"
 
 ```
 크기        718,307,328 바이트   (원본과 같습니다)
-MD5         DD2A1BDBBC121E589906D9D1C71D1076
-SHA-1       2EE6A243DEE2496F9F78DD0DAD38893522B074C8
-SHA-256     7067CE02AE144D19C7CAC7BD79E95772B62F77A23778A6D65C700955EDAA89DC
+MD5         8CFA428D8B696EB339011A452FF1C956
+SHA-1       1127ECB18DC0653EC8299748AE459857252FD459
+SHA-256     F6579307D6CCFF22E63876FAA3138242CA2100774C88D006318772C4DA34A27C
 ```
 
 크기가 원본과 **똑같은 것이 정상입니다.** 이 패치는 ISO 를 키우지 않고
@@ -342,6 +342,17 @@ payload 구조는 `아이디\0 제목\0 [u32 개수 + 문자열\0 × 개수] × 
 원문 챕터 제목은 `　　　第一章` 처럼 **앞에 전각 공백**을 두어 세로쓰기에서
 위치를 잡는다. 번역이 이 공백을 지우고 뒤에 붙이는 바람에 제목이 원본 2열에서
 3열로 넘쳤다. 78건을 원문과 같은 앞 공백·같은 칸 수로 되돌렸다.
+
+그 뒤 장 제목 38건을 다시 훑어 **4건**을 더 고쳤다(제보 #7). 앞 공백이 통째로
+빠졌거나 번역이 잘린 것들이다.
+
+    TU #50   제2장입니다             ->  　　　제2장
+    TU #51   두 명의 용의자 이야기    ->  　　　　두 명의 용의자
+    SI #1    　　　　　못 미더운      ->  　　　못 미더운 탐정
+    SI #597  　　　　　한 가지        ->  　　　한 가지 의문
+
+칸 수는 원문과 똑같이 맞췄다(6/12/11/10). `第○章` 다음 줄이 부제인 구조라,
+장 표시와 부제를 짝지어 폭과 앞 공백을 함께 본다.
 
 ### 조각 이음매의 띄어쓰기 — `tools/joints.py`
 
