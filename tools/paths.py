@@ -37,3 +37,7 @@ TTF = os.environ.get('TXL_TTF') or os.path.join(FONTS, 'SeoulHangangEB.ttf')
 # Medium 은 너무 가늘다.
 TTF_GAME = os.environ.get('TXL_TTF_GAME') or os.path.join(
     FONTS, 'SeoulHangangB.ttf')
+
+# EBOOT.BIN 복호용 (https://github.com/John-K/pspdecrypt)
+PSPDECRYPT = os.environ.get('TXL_PSPDECRYPT') or os.path.join(
+    ROOT, 'tools', 'bin', 'pspdecrypt.exe')

@@ -258,4 +258,27 @@ with open(ISO_DST, 'r+b') as f:
         f.write(buf)
         print(f"  {arch:<14} LBA {lba:,} 크기 {nbytes:,}B 기록")
 
+# ---------- EBOOT.BIN ----------
+# 낭독 듣기 목록은 실행 파일 안의 표에서 온다(제보 #7). 암호화된 EBOOT 는
+# 재서명이 불가능하므로 **복호해 고친 평문 ELF 를 그 자리에 그대로 넣는다.**
+# PSP CFW 와 PPSSPP 는 평문 ELF 를 그대로 읽는다. 원본보다 작으므로 뒤를 0 으로
+# 채운다(ISO 디렉터리의 크기 값은 건드리지 않는다).
+EB = 'eboot_kr.elf'
+if os.path.exists(EB):
+    from isolib import Iso
+    ent = next((t for t in Iso(ISO_SRC).files()
+                if t[2].endswith('/SYSDIR/EBOOT.BIN')), None)
+    assert ent, 'EBOOT.BIN 을 못 찾았다'
+    off, room = ent[0], ent[1] - ent[0]
+    elf = open(EB, 'rb').read()
+    assert elf[:4] == b'\x7fELF', '평문 ELF 가 아니다'
+    assert len(elf) <= room, f'EBOOT 자리 초과 {len(elf)} > {room}'
+    with open(ISO_DST, 'r+b') as f:
+        f.seek(off)
+        f.write(elf + b'\0' * (room - len(elf)))
+    print(f"  EBOOT.BIN      오프셋 {off:,} 평문 ELF {len(elf):,}B "
+          f"+ 0채움 {room - len(elf):,}B")
+else:
+    print("  EBOOT.BIN      그대로 (eboot_kr.elf 없음)")
+
 print(f"\n원본 {os.path.getsize(ISO_SRC):,} / 신규 {os.path.getsize(ISO_DST):,}")

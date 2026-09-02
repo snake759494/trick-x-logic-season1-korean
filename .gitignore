@@ -54,3 +54,8 @@ xdeltaUI.exe
 
 # 쓰지 않는 굵기 (서울서체 배포처에서 받으세요)
 fonts/SeoulHangangL.ttf
+
+# 제3자 실행 파일(pspdecrypt)과 복호 산출물 — 올리지 않는다
+tools/bin/
+*.elf
+eboot_enc.*
