@@ -26,6 +26,12 @@ python verify_strict.py   # 원본 ISO 와 위치별 전수 대조
 | `prcs.py` | PRCS 스크립트 문자열 탐색 |
 | `textutil.py` | Shift-JIS 문자열 유틸 |
 | `build_font.py` | 글리프 렌더링(`render()`) |
+| `eboot.py` | 실행 파일 안의 낭독 목록 표 고치기 (제보 #7) |
+| `psign.py` | 고친 ELF 를 다시 `~PSP` 로 봉인 — **이 파일만 GPLv3** |
+
+`eboot.py` 는 `pspdecrypt`(`tools/bin/` 또는 `TXL_PSPDECRYPT`)와
+`pycryptodome` 이 있어야 돈다. 봉인을 건너뛰고 평문 ELF 를 넣으면 PPSSPP 는
+돌지만 **실기가 0xFFFFFFFC 로 거부한다**(v1.8.0 의 사고).
 
 ## 핵심 수치
 

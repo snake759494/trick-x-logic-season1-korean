@@ -17,7 +17,7 @@ PSP 추리 어드벤처 **트릭 × 로직 시즌 1**(UCJS-10097)의 한국어 �
 | | |
 |---|---|
 | 원본 ISO | `Trick x Logic Season 1.iso` — **718,307,328 바이트** |
-| 패치 파일 | `TrickxLogic_S1_Korean_v1.8.0.xdelta` ([Releases](../../releases/latest)) |
+| 패치 파일 | `TrickxLogic_S1_Korean_v1.8.1.xdelta` ([Releases](../../releases/latest)) |
 | 패치 도구 | xdelta3 — [공식 배포처](https://github.com/jmacd/xdelta-gpl/releases) |
 
 Windows에서는 GUI 도구인 **xdeltaUI**(`xdelta UI` / `Delta Patcher` 등 아무거나)를
@@ -54,7 +54,7 @@ ISO 를 다시 굽거나 재패킹한 것도 해시가 달라져 안 됩니다. 
 **명령줄 (Windows / macOS / Linux 공통)**
 
 ```bash
-xdelta3 -d -s "Trick x Logic Season 1.iso" "TrickxLogic_S1_Korean_v1.8.0.xdelta" "Trick x Logic Season 1 (KR).iso"
+xdelta3 -d -s "Trick x Logic Season 1.iso" "TrickxLogic_S1_Korean_v1.8.1.xdelta" "Trick x Logic Season 1 (KR).iso"
 ```
 
 - `-d` 디코드(적용) · `-s` 원본 파일 · 마지막이 만들어질 한글판입니다.
@@ -74,9 +74,9 @@ xdelta3 -d -s "Trick x Logic Season 1.iso" "TrickxLogic_S1_Korean_v1.8.0.xdelta"
 
 ```
 크기        718,307,328 바이트   (원본과 같습니다)
-MD5         086D9892F08D72F5BD1CE12C5CD2F53F
-SHA-1       D607BA82D1186FC313A3ED71DB837F8CEAECCAF8
-SHA-256     54911E2F50605373AE74C264B80DEE0A24831497F9097F246161F4F3B447BBB7
+MD5         6D0267A0C5AFA812CFDF92DC0B0A5E89
+SHA-1       B1E5A77FA2478B15BFFD39B3A65225BB28920EB3
+SHA-256     EAAE8FA32F5AE4D53178954160B9215620BAA3CA958D2CF9D0292A9F5206C49E
 ```
 
 크기가 원본과 **똑같은 것이 정상입니다.** 이 패치는 ISO 를 키우지 않고
@@ -84,9 +84,14 @@ SHA-256     54911E2F50605373AE74C264B80DEE0A24831497F9097F246161F4F3B447BBB7
 
 ### 1-5. 실행
 
+**v1.8.0 은 실기에서 안 뜹니다. v1.8.1 로 받으세요.** v1.8.0 은 `EBOOT.BIN`
+자리에 복호한 평문 ELF 를 넣었는데, PPSSPP 는 그래도 돌지만 실기는
+`기동에 실패했습니다 (FFFFFFFC)` 로 거부합니다. v1.8.1 은 고친 실행 파일을
+다시 `~PSP` 로 봉인해 넣습니다(아래 「낭독 듣기 목록」 절).
+
 **v1.8.0 부터 실행 파일이 정품 서명이 아닙니다.** 낭독 목록을 고치려면
-`EBOOT.BIN` 을 바꿔야 하는데 재서명이 불가능해 복호한 평문 ELF 를 넣습니다.
-**CFW 나 PPSSPP 에서만 실행됩니다**(원래도 그랬습니다).
+`EBOOT.BIN` 을 바꿔야 하는데, 공개된 KIRK 키로 다시 봉인하는 것이라 정품
+서명의 복원은 아닙니다. **CFW 나 PPSSPP 에서만 실행됩니다**(원래도 그랬습니다).
 
 
 | 환경 | 방법 |
@@ -168,23 +173,57 @@ HI16/LO16 주소 상수 중 이 구간으로 떨어지는 것이 0개다. (3) �
 내부 이름(스프라이트 매니저 등)과 **금칙문자표**(`」』）？！…っッ〉》”、。`)는
 건드리지 않는다.
 
-#### ⚠ 배포 방식이 바뀐다 — CFW·PPSSPP 전용
+#### v1.8.0 의 사고 — 평문 ELF 를 그대로 넣었다
 
-`EBOOT.BIN` 은 암호화돼 있고 **재서명은 불가능하다.** 그래서 pspdecrypt 로 푼
-평문 ELF 를 그 자리에 그대로 넣는다. PSP CFW 와 PPSSPP 는 평문 ELF 를 그대로
-읽는다. PPSSPP 로 부팅·구동을 실제로 확인했다.
+v1.8.0 은 복호한 평문 ELF 를 `EBOOT.BIN` 자리에 그대로 넣었다. PPSSPP 에서는
+부팅·구동이 됐고 그것만 보고 내보냈는데, **실기에서는 안 떴다.**
 
-    Loading disc0:/PSP_GAME/SYSDIR/EBOOT.BIN...
-    Relocatable module
-    Loadable Segment Copied to 08804000, size 0144a580
-    Block: 08804000 - 09c4e600 taken=1 tag=ELF/SN7Main
+    기동에 실패했습니다. (FFFFFFFC)          — PSP-3000, 제보 #7
 
-v1.7.3 까지는 실행 파일을 전혀 안 건드렸다. v1.8.0 부터는 **정품 서명이 아닌
-실행 파일**이 들어가므로 순정 펌웨어에서는 안 뜬다. 이 패치는 원래도 CFW 나
-PPSSPP 가 필요하므로 실사용에는 문제가 없지만, 알고 쓰는 편이 낫다.
+숫자가 원인을 정확히 가리킨다. 실기 로더는 그 자리의 파일을 `~PSP` 로 보고
+복호 경로를 태우는데, 그 경로 첫머리에 이런 검사가 있다.
 
-빌드하려면 `pspdecrypt` 가 필요하다(`tools/bin/pspdecrypt.exe` 또는 환경변수
-`TXL_PSPDECRYPT`). 번역표는 `text/eboot.json`, 도구는 `tools/eboot.py` 다.
+    retsize = *(u32*)&buf[0xB0];
+    if (size - 0x150 < retsize) return -4;    // 0xFFFFFFFC
+
+평문 ELF 의 0xB0 자리(`~PSP` 라면 `comp_size` 가 들어갈 곳)에는 ELF 본문
+바이트가 있다. 우리 파일은 0x01CC4025 = 30,162,981 이라 1,519,328 보다 크고,
+검사에 걸려 -4 가 나온다. 제보된 값과 같다.
+
+#### v1.8.1 — 다시 `~PSP` 로 봉인한다
+
+고친 ELF 를 원래 태그(`0xD9160BF0`)로 다시 봉인해서 **정상 경로로** 들여보낸다
+(`tools/psign.py`). `~PSP` 본문은 KIRK CMD1 블록이고, 앞 32바이트의 AES 키와
+CMAC 키는 KIRK 안의 마스터 키로 봉해져 들어간다. 그 키는 실기에서 덤프돼
+공개된 **진짜 하드웨어 키**라, 우리가 계산한 CMAC 두 개를 실기 KIRK 도 똑같이
+검증한다. 개인키가 필요한 ECDSA 경로는 `ecdsa_hash = 0` 이라 타지 않는다.
+
+봉인본은 원본과 **크기가 정확히 같다**(둘 다 1,519,664B). ISO 디렉터리 레코드를
+건드릴 일이 없다.
+
+검산은 세 갈래로 했다. 전부 우리가 만들지 않은 복호기다.
+
+| 검산 | 결과 |
+|---|---|
+| `pspdecrypt` 되돌리기 | `tag D9160BF0 with type 2` — **CMAC 을 검증하는 경로** |
+| 되돌린 평문 | 넣은 ELF 와 바이트 단위로 같음 |
+| PPSSPP 가 스스로 복호한 덤프 | 넣은 ELF 와 같음 (`DUMP/UCJS10097_SN7Main.BIN`) |
+
+`type 2` 가 의미를 가지려면 대조군이 필요하다. 본문을 한 바이트 뒤집으면
+`type 6`(무검증 폴백)으로 떨어지고, SHA1 이나 CMAC 을 뒤집으면 아예 실패한다.
+그래서 `type 2` 는 "서명이 맞다"는 뜻이다. 이 검산을 `eboot.selftest()` 에
+넣어 두었다 — 헤더 0x00~0x80 이 원본과 다르거나 되돌린 평문이 어긋나면
+빌드가 그 자리에서 멈춘다.
+
+⚠ 원본과 바이트 단위로 같은 파일이 나오지는 **않는다.** 본문 AES 키가 다르니
+암호문도 다르다. 되돌아오는 평문이 같을 뿐이다. 정품 서명의 복원이 아니므로
+순정 펌웨어 구동은 보장하지 않는다 — v1.7.3 까지는 실행 파일을 전혀 안
+건드렸고, v1.8.0 부터는 CFW·PPSSPP 가 필요하다.
+
+빌드하려면 `pspdecrypt`(`tools/bin/pspdecrypt.exe` 또는 환경변수
+`TXL_PSPDECRYPT`)와 `pycryptodome` 이 필요하다. 번역표는 `text/eboot.json`,
+도구는 `tools/eboot.py` 와 `tools/psign.py` 다. `psign.py` 는 sign_np(GPLv3)
+파생물이라 **그 파일만 GPLv3** 이다(저장소의 나머지는 MIT).
 
 
 ### 낭독 스태프롤 — 세로쓰기 350 글줄

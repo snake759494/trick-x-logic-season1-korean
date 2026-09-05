@@ -40,12 +40,14 @@ R_MIPS_32 값과 HI16/LO16 주소 상수 중 이 구간으로 떨어지는 것�
 `.rel.data` 의 R_MIPS_32 항목은 손댈 필요가 없다. 주소가 여전히 같은
 세그먼트 안이라 재배치 규칙이 그대로 성립한다.
 
-⚠ EBOOT.BIN 은 암호화돼 있고(`~PSP`) 재서명은 불가능하다. 그래서 pspdecrypt
-로 푼 **평문 ELF 를 그대로 EBOOT.BIN 자리에 넣는다.** PSP CFW 와 PPSSPP 는
-평문 ELF 를 그대로 읽는다 — PPSSPP 로 부팅·구동을 실제로 확인했다
-("Relocatable module", 태그 ELF/SN7Main, 50초 동안 렌더·오디오 정상).
+EBOOT.BIN 은 `~PSP` 로 암호화돼 있다. pspdecrypt 로 풀어 고친 뒤 **다시
+`~PSP` 로 봉인해서** 제자리에 넣는다(`psign.py`). 봉인을 건너뛰고 평문 ELF 를
+그대로 넣으면 PPSSPP 에서는 돌지만 **실기에서 0xFFFFFFFC 로 기동에 실패한다**
+— v1.8.0 이 그렇게 나갔다가 제보를 받았다. 이유는 `psign.py` 머리말에 적었다.
 
-    python ../tools/eboot.py   ->  eboot_kr.elf
+    python ../tools/eboot.py   ->  eboot_kr.elf, eboot_kr.bin(~PSP)
+
+봉인이 제대로 됐는지는 제3자 복호기로 되돌려 확인한다(아래 `selftest`).
 """
 import json
 import os
@@ -76,9 +78,10 @@ def decrypt(iso_path=None, work='.'):
     from isolib import Iso
     iso = Iso(iso_path) if iso_path else Iso()
     enc = os.path.join(work, 'eboot_enc.bin')
-    open(enc, 'wb').write(iso.read_named('/PSP_GAME/SYSDIR/EBOOT.BIN'))
-    subprocess.run([exe, enc], check=True, cwd=work)
     out = os.path.join(work, 'eboot_enc.elf')
+    open(enc, 'wb').write(iso.read_named('/PSP_GAME/SYSDIR/EBOOT.BIN'))
+    # 출력 이름을 못 박는다. 안 그러면 pspdecrypt 가 `<입력>.dec` 로 쓴다.
+    subprocess.run([exe, '-o', out, enc], check=True, cwd=work)
     if not os.path.exists(out):
         raise SystemExit('복호 결과가 없다: ' + out)
     return open(out, 'rb').read()
@@ -155,7 +158,46 @@ def patch_loose(d, table):
     return bytes(d), done, skip
 
 
+def selftest(signed, elf, work='.'):
+    """봉인한 `~PSP` 를 **제3자 복호기로 되돌려** 확인한다.
+
+    조용히 어긋나는 사고를 막는 유일한 방법이다. 통과 조건 셋:
+
+    * 복호가 **type 2** 로 성공한다 — CMAC 을 검증하는 경로다. 본문이 한
+      바이트라도 틀리면 type 6(무검증 폴백)으로 떨어진다.
+    * 되돌아온 평문이 우리가 넣은 ELF 와 바이트 단위로 같다.
+    * `~PSP` 헤더 0x00~0x80 이 **원본 EBOOT 과 같다** — 모듈명·진입점·
+      모듈정보 위치·bss 크기 따위를 ELF 만 보고 다시 세우므로, 원본과
+      대조하지 않으면 틀려도 알 수가 없다.
+    """
+    exe = os.environ.get('TXL_PSPDECRYPT') or getattr(paths, 'PSPDECRYPT', '')
+    if not exe or not os.path.exists(exe):
+        raise SystemExit('pspdecrypt 가 없어 봉인을 검산할 수 없다')
+    from isolib import Iso
+    orig = Iso().read_named('/PSP_GAME/SYSDIR/EBOOT.BIN')
+    if signed[:4] != b'~PSP':
+        raise SystemExit('봉인 결과가 ~PSP 가 아니다')
+    if len(signed) != len(orig):
+        raise SystemExit(f'크기가 원본과 다르다 {len(signed)} != {len(orig)}')
+    if signed[:0x80] != orig[:0x80]:
+        raise SystemExit('헤더 0x00~0x80 이 원본과 다르다')
+    tmp = os.path.join(work, '_signcheck.PSP')
+    open(tmp, 'wb').write(signed)
+    out = subprocess.run([exe, tmp], capture_output=True, text=True).stdout
+    back = open(tmp + '.dec', 'rb').read() if os.path.exists(tmp + '.dec') else b''
+    for p in (tmp, tmp + '.dec'):
+        if os.path.exists(p):
+            os.remove(p)
+    if 'with type 2' not in out:
+        raise SystemExit('복호가 type 2 로 안 떨어진다: ' + out.strip())
+    if back != elf:
+        raise SystemExit('되돌린 평문이 원래 ELF 와 다르다')
+    return out.strip()
+
+
 if __name__ == '__main__':
+    import psign
+
     doc = json.load(open(os.path.join(paths.TEXT, 'eboot.json'),
                          encoding='utf-8'))
     src = os.environ.get('TXL_EBOOT_ELF') or 'eboot_enc.elf'
@@ -168,3 +210,8 @@ if __name__ == '__main__':
           (f' / 건너뜀 {skip}' if skip else ''))
     open('eboot_kr.elf', 'wb').write(d)
     print(f'-> eboot_kr.elf ({len(d):,}B)')
+
+    signed = psign.sign(d)
+    open('eboot_kr.bin', 'wb').write(signed)
+    print(f'-> eboot_kr.bin  ({len(signed):,}B, ~PSP 봉인)')
+    print('   검산:', selftest(signed, d))
