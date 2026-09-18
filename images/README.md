@@ -15,6 +15,11 @@
 | `image_text.json` | 번역표 ① 단순 교체용 |
 | `_index.json` `_classify.json` `translate_list.csv` | 메타데이터·분류 |
 
+위 PNG 폴더와 `_translate/` `_preview/` 는 도구가 만드는 **산출물**이라 저장소에
+두지 않습니다. 필요하면 다시 만드세요 — 아카이브별 PNG 는 `extract_gim.py`,
+`_translate/` 는 `finalize_img.py`, `_preview/` 는 `build_images.py` 가 만듭니다.
+빌드는 이 PNG 들을 읽지 않고 원본 GIM 을 ISO 에서 바로 읽습니다.
+
 ## 진행 상황
 
 | 구분 | 종수 | 방식 |

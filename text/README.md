@@ -85,7 +85,7 @@ u32 length (널 종료 포함)  |  cp932 바이트열  |  0x00
 
 경로: `ISO → PSP_GAME/USRDIR/data/*.bin (SECTPACK) → ./script/**/*.bin (PRCS)`
 
-아카이브/폰트 포맷 상세는 `../font_extract/README.md` 참조.
+아카이브/폰트 포맷 상세는 [`../tools/FONT_FORMAT.md`](../tools/FONT_FORMAT.md) 참조.
 
 ## 카테고리별 분포
 
